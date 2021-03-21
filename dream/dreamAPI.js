@@ -24,6 +24,30 @@ router.get('/allDreamType',async function (req, res, next) {
   }
 });
 
+
+router.get('/filtered',async function (req, res, next){
+
+  updateOptions = {};
+  for (let i = 0; i < req.body.length; i++) {
+
+    let singleUpdate = req.body[i];
+    if(singleUpdate.fieldName == "description")
+    continue;
+    updateOptions[singleUpdate.filterName] = singleUpdate.filterValue;
+  }
+
+  try {
+    const dreams = await Dream.aggregate([{$match : updateOptions}]).exec();
+    res.status(200).json(dreams);
+  } catch (err) {
+    next(err);
+  }
+
+
+});
+
+
+
 router.post('/addDream', async function (req, res, next) {
   const dreamObj = {
     _id: new mongoose.Types.ObjectId(),
