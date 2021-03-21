@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router();
 const Dream = require('./dreamModel');
 const mongoose = require('mongoose');
+const moment = require('moment')
 
 router.get('/allDreams',async function (req, res, next) {
   try {
@@ -27,15 +28,33 @@ router.get('/allDreamType',async function (req, res, next) {
 
 router.get('/filtered',async function (req, res, next){
 
-  updateOptions = {};
-  for (let i = 0; i < req.body.length; i++) {
+  var updateOptions = {};
+  var from ;
+  var to ;
 
+  for (let i = 0; i < req.body.length; i++) {
     let singleUpdate = req.body[i];
-    if(singleUpdate.fieldName == "description")
+    if(singleUpdate.filterName == "description")
     continue;
+    if(singleUpdate.filterName == "fromDate"){
+     from =  new Date(moment(singleUpdate.filterValue,'DD/MM/YYYY'));
+      continue;
+    }
+    if(singleUpdate.filterName == "toDate"){
+      to =  new Date(moment(singleUpdate.filterValue,'DD/MM/YYYY'));
+      continue;
+     }
+
     updateOptions[singleUpdate.filterName] = singleUpdate.filterValue;
   }
 
+  if(from != undefined && to == undefined)
+  updateOptions['date'] = {$gte : from};
+  else if(from == undefined && to != undefined)
+  updateOptions['date'] = {$lt : to};
+  else if (from != undefined && to != undefined){
+    updateOptions['date'] = {$gte : from , $lt :to};
+  }
   try {
     const dreams = await Dream.aggregate([{$match : updateOptions}]).exec();
     res.status(200).json(dreams);
@@ -53,7 +72,7 @@ router.post('/addDream', async function (req, res, next) {
     _id: new mongoose.Types.ObjectId(),
     title: req.body.title,
     description: req.body.description,
-    date: req.body.date,
+    date: new Date (moment(req.body.date,'DD/MM/YYYY')),
     type:Dream.DreamType[req.body.type],
   };
 
