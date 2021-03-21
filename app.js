@@ -44,8 +44,4 @@ app.use(function (error, req, res, next) {
   });
 });
 
-
-
-
-// Izvozenje Express.js aplikacije
 module.exports = app;

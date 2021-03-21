@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Enum = require('enum')
 
  const DreamType = Object.freeze({
  happy :  'happy',
@@ -12,7 +11,7 @@ const dreamSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   title: {type : String, require : true},
   description: {type : String, require : true},
-  date: {type : Date,require :true},
+  date: {type : Date ,require :true},
   type: {type : String , enum : DreamType, require : true},
 },
 {
